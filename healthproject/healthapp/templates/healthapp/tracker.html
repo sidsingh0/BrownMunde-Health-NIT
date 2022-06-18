@@ -1,7 +1,22 @@
 {% extends 'base.html' %}
 
 {% block title %}Track your calories online {% endblock %}
-{% block dashactive %} active {% endblock %}
+{% block calactive %} active {% endblock %}
 {% block body %}
-<p>Welcome to Calorie Tracker</p>
+<div class="container">
+<h2>Try the Calorie Tracker!</h2>
+<p>This calorie tracker will track your burnt calories per day and show you a detailed
+graph view in your <a class="text-secondary" href="{% url 'health-dashboard' %}">dashboard.</a></p>
+<hr>
+    <form method="post" action=".">
+      {% csrf_token %}
+  <div class="mb-3 col-md-4 col-lg-4">
+    <label for="cal" class="form-label">Calories burnt today</label>
+    <input placeholder="eg: 120.67" type="number" step="any" class="form-control" id="cal" name="cal">
+    <div id="calHelp" class="form-text">This helps us maintain your data for better recommendations.</div>
+  </div>
+  <button id="submitnow" type="submit" class="btn btn-secondary">Submit</button>
+</form>
+</div>
 {% endblock body %}
+
