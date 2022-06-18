@@ -30,7 +30,7 @@ class UserInfo(models.Model):
 class Exercise(models.Model):
     name = models.CharField(max_length=100)
     type = models.CharField(max_length=100, choices=TYPE_CHOICES, default='Full-Body')
-    cal_burn = models.FloatField(default=0.0)
+    cal_bun = models.FloatField(default=0.0)
     image = models.ImageField(upload_to="exercise/images", default="")
     desc = models.TextField()
     link = models.CharField(max_length=2000, null=False)
@@ -50,7 +50,7 @@ class Appointment(models.Model):
     timeStamp = models.DateTimeField(auto_now=True, blank=True)
 
     def __str__(self):
-        return f'Message from {self.full_name}'
+        return f'Appointment of {self.full_name}'
 
 
 class Calorie(models.Model):
@@ -59,4 +59,4 @@ class Calorie(models.Model):
     date = models.DateField(auto_now=True, blank=True)
 
     def __str__(self):
-        return self.calorie_burnt
+        return f'{self.calorie_burnt}'

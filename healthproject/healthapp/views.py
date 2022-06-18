@@ -4,6 +4,11 @@ from django.contrib import messages
 from django.http import HttpResponseNotFound, HttpResponseRedirect
 from django.contrib.auth import authenticate, login, logout
 from . models import *
+import pandas as pd
+import plotly
+import json
+import plotly.express as px
+import requests
 
 STOCK_ENDPOINT = "https://www.alphavantage.co/query"
 NEWS_ENDPOINT = "https://newsapi.org/v2/everything"
@@ -13,6 +18,10 @@ NEWS_API_KEY = "b52c3bd64a744b7cbb7e05e997668ecf"
 
 
 def home(request):
+    response = requests.get("https://zenquotes.io/api/today/[your_key]%22")
+    data = response.json()
+    quote = (data[0]['q'])
+    author = (data[0]['a'])
     newsapi = NewsApiClient(api_key='b52c3bd64a744b7cbb7e05e997668ecf')
     top_headlines = newsapi.get_top_headlines(category='health',
                                               language='en',
@@ -22,7 +31,7 @@ def home(request):
         articles = [top_headlines['articles'][n]['title'], top_headlines['articles'][n]['description'],
                     top_headlines['articles'][n]['url'], top_headlines['articles'][n]['urlToImage']]
         news.append(articles)
-    return render(request, 'healthapp/home.html', {'news': news})
+    return render(request, 'healthapp/home.html', {'news': news, 'quote': quote, 'author': author})
 
 
 def handleSignup(request):
@@ -70,13 +79,57 @@ def handleLogout(request):
         return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
 
-def tracker(request):
-    return render(request, 'healthapp/dashboard.html')
+def dashboard(request):
+    if request.user.is_authenticated:
+        cal_objs = Calorie.objects.filter(user=request.user).values('date', 'calorie_burnt')
+        if cal_objs:
+            df = pd.DataFrame(list(cal_objs))
+            fig = px.bar(df, x=df['date'], y=df['calorie_burnt'], title=f"{request.user.username}'s Calorie Chart")
+            graph = json.dumps(fig, cls=plotly.utils.PlotlyJSONEncoder)
+            return render(request, 'healthapp/dashboard.html', {'cal_objs': cal_objs, 'graph': graph})
+        else:
+            return render(request, 'healthapp/dashboard.html')
+    return redirect("/")
 
 
 def appointment(request):
-    return render(request, 'healthapp/appointment.html')
+    if request.method == "POST":
+        full_name = request.POST.get('full_name')
+        email = request.POST.get('email')
+        phone = request.POST.get('phone')
+        address = request.POST.get('address')
+        desc = request.POST.get('desc')
+        pincode = request.POST.get('pincode')
+        appointment = Appointment.objects.create(user=request.user, full_name=full_name, email=email, phone=phone,
+                                                 desc=desc, address=address, pincode=pincode)
+        appointment.save()
+        messages.success(request, "Your appointment has been booked successfully!")
+        return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+    else:
+        return render(request, 'healthapp/appointment.html')
+
+
+def get_appointments(request):
+    if request.user.is_authenticated:
+        my_appointments = Appointment.objects.filter(user=request.user)
+        return render(request, "healthapp/my_appointments.html", {'my_appt': my_appointments})
+    return redirect("/")
 
 
 def picker(request):
     return render(request, 'healthapp/picker.html')
+
+
+def tracker(request):
+    if request.method == "POST":
+        cal = float(request.POST.get("cal", ""))
+        cal_obj = Calorie.objects.create(calorie_burnt=cal, user=request.user)
+        cal_obj.save()
+        messages.success(request, "Your calories for today has been recorded!")
+        return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+    return render(request, 'healthapp/tracker.html')
+
+
+def get_exercises(request, type):
+    exercises = Exercise.objects.filter(type=type)
+    return render(request, "healthapp/exercises.html", {'exercises': exercises, 'type': type})
