@@ -10,8 +10,10 @@ TYPE_CHOICES = (
     ('Full-Body', 'Full-Body'),
 )
 
+
 class User(AbstractUser):
     pass
+
 
 class UserInfo(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="profile")
@@ -23,6 +25,7 @@ class UserInfo(models.Model):
 
     def __str__(self):
         return self.first_name
+
 
 class Exercise(models.Model):
     name = models.CharField(max_length=100)
@@ -51,7 +54,7 @@ class Appointment(models.Model):
 
 
 class Calorie(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="appointment")
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="calorie")
     calorie_burnt = models.FloatField(default=0.0)
     date = models.DateField(auto_now=True, blank=True)
 
