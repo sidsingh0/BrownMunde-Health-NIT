@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+
+{% block title %} Picker {% endblock %}
+
+{% block body %}
+<center>
+  {% load static %}
+  <div class="container">
+    <h1>Wanna train <span id="muscle">your body</span>?</h1>
+    <img src="{% static 'healthapp/images/bgm.png' %}" width="297" height="597" alt="anImage" usemap="#brownmunde">
+
+    <map name="brownmunde">
+      <area shape="rect" coords="11,109,85,335" href="https://www.youtube.com/results?search_query=arm+workout" alt="arms" onmousemove="fun('Arms')">
+      <area shape="rect" coords="191,108,286,335" href="https://www.youtube.com/results?search_query=arm+workout" alt="arms" onmousemove="fun('Arms')">
+      <script>
+          function fun(val){
+            document.getElementById("muscle").innerHTML = val;
+          }
+      </script>
+      <area shape="rect" coords="105,116,186,166" href="https://www.youtube.com/results?search_query=chest+workout" alt="chest" onmousemove="fun('Chest')">
+      <area shape="rect" coords="103,272,221,589" href="https://www.youtube.com/results?search_query=legs+workout" alt="legs" onmousemove="fun('Legs')">
+      <area shape="rect" coords="105,166,187,265" href="https://www.youtube.com/results?search_query=core+workout" alt="core" onmousemove="fun('Core')">
+    </map>
+  </div>
+  </center>
+{% endblock body %}
