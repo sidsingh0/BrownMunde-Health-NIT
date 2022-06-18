@@ -42,11 +42,23 @@
                 Home
               </a>
             </li>
+            <li class="nav-item">
+              <a href="{% url 'health-picker' %}" class="nav-link {% block pickactive %} text-secondary {% endblock %}">
+                <center><i class="bi bi-cursor-fill"></i></center>
+                Picker
+              </a>
+            </li>
             {% if request.user.is_authenticated %}
             <li class="nav-item">
-              <a href="{% url 'health-tracker' %}" class="nav-link {% block dashactive %} text-secondary {% endblock %}">
+              <a href="{% url 'health-dashboard' %}" class="nav-link {% block dashactive %} text-secondary {% endblock %}">
                 <center><i class="bi bi-speedometer2"></i></center>
                 Dashboard
+              </a>
+            </li>
+           <li class="nav-item">
+              <a href="{% url 'health-tracker' %}" class="nav-link {% block calactive %} text-secondary {% endblock %}">
+                <center><i class="bi bi-activity"></i></center>
+                Calorie Tracker
               </a>
             </li>
             {% endif %}
@@ -70,11 +82,15 @@
       </ul>
       {% else %}
       <ul class="navbar-nav mx-1 my-0">
-        <li class="nav-item dropdown">
+        <li class="nav-item dropdown text-secondary">
           <a class="nav-link dropdown-toggle" href="#" id="navbarDarkDropdownMenuLink" role="button" data-bs-toggle="dropdown" aria-expanded="false">
             <center><i class="bi bi-person-fill"></i></center>Welcome {{ user }}</a>
           <ul class="dropdown-menu" aria-labelledby="navbarDarkDropdownMenuLink">
+
             <li>
+              <a class="dropdown-item" href="{% url 'health-my-appt' %}">My Appointments</a>
+            </li>
+             <li>
               <form method="post" action="/logout/">
                 {% csrf_token %}
                 <button type="submit" class="dropdown-item">Log Out</button>
