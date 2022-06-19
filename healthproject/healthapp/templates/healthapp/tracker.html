@@ -8,15 +8,68 @@
 <p>This calorie tracker will track your burnt calories per day and show you a detailed
 graph view in your <a class="text-secondary" href="{% url 'health-dashboard' %}">dashboard.</a></p>
 <hr>
-    <form method="post" action=".">
+    <form class="needs-validation" method="post" action="." novalidate>
       {% csrf_token %}
   <div class="mb-3 col-md-4 col-lg-4">
     <label for="cal" class="form-label">Calories burnt today</label>
-    <input placeholder="eg: 120.67" type="number" step="any" class="form-control" id="cal" name="cal">
+    <input placeholder="eg: 120.67" type="number" step="any" class="form-control" id="cal" name="cal" required>
+      <div class="invalid-feedback">
+        Calories cannot be empty!
+      </div>
     <div id="calHelp" class="form-text">This helps us maintain your data for better recommendations.</div>
   </div>
   <button id="submitnow" type="submit" class="btn btn-secondary">Submit</button>
 </form>
+  <p class="text-muted">Your calories for today has already been recorded! Come back tomorrow!</p>
+  <hr>
+  <h2>Don't know how many calories you've burnt?</h2>
+  <small class="text-muted">Try our new humane way of calculating calories.</small>
+  <form class="needs-validation" method="post" action="." novalidate>
+      {% csrf_token %}
+    <hr>
+  <div class="mb-3 col-md-4 col-lg-4">
+    <label for="calnlp" class="form-label">What excercises did you do today?</label>
+    <input placeholder="eg: i ran 5kms and did 20 pushups!" type="text" class="form-control" id="calnlp" name="calnlp" required>
+      <div class="invalid-feedback">
+        Input can't be empty!
+      </div>
+      </div>
+  <div class="mb-3 col-md-4 col-lg-4">
+    <label for="weight" class="form-label">Tell Us Your Weight</label>
+    <input placeholder="eg: 65.20" type="number" step="any" class="form-control" id="weight" name="weight" required>
+      <div class="invalid-feedback">
+        Weight cannot be empty!
+      </div>
+  </div>
+      <div class="mb-3 col-md-4 col-lg-4">
+    <label for="height" class="form-label">Tell Us Your Height <span class="text-muted">(in cms)</span></label>
+    <input placeholder="eg: 120.67" type="number" step="any" class="form-control" id="height" name="height" required>
+      <div class="invalid-feedback">
+        Height cannot be empty!
+      </div>
+  </div>
+
+      <div class="mb-3 col-md-4 col-lg-4">
+    <label for="age" class="form-label">Tell Us Your Age</label>
+    <input placeholder="eg: 18" type="number" class="form-control" id="age" name="age" required>
+      <div class="invalid-feedback">
+        Height cannot be empty!
+      </div>
+  </div>
+
+  <button id="submitnow1" type="submit" class="btn btn-secondary">Submit</button>
+</form>
 </div>
+
 {% endblock body %}
+
+{% block js %}
+<script>
+  console.log({{ done }});
+  {% if done %}
+  document.getElementById("submitnow").disabled = true;
+  document.getElementById("submitnow1").disabled = true;
+  {% endif %}
+</script>
+{% endblock %}
 
