@@ -5,6 +5,7 @@ from django.http import HttpResponseNotFound, HttpResponseRedirect
 from django.contrib.auth import authenticate, login, logout
 from . models import *
 import pandas as pd
+import datetime
 import plotly
 import json
 import plotly.express as px
@@ -14,6 +15,14 @@ STOCK_ENDPOINT = "https://www.alphavantage.co/query"
 NEWS_ENDPOINT = "https://newsapi.org/v2/everything"
 STOCK_API_KEY = "qBp83gL97z1g8EHhK6ipU1MZuEfEOw8J"
 NEWS_API_KEY = "b52c3bd64a744b7cbb7e05e997668ecf"
+APPLICATION_ID = "4d9357ff"
+API_KEY = "e4171aca238375ab4d3a135d772c8a4d"
+nutri_api_endpoint = "https://trackapi.nutritionix.com/v2/natural/exercise"
+
+headers = {
+    "x-app-id": APPLICATION_ID,
+    "x-app-key": API_KEY,
+}
 # Create your views here.
 
 
@@ -120,14 +129,75 @@ def picker(request):
     return render(request, 'healthapp/picker.html')
 
 
-def tracker(request):
+def bmi(request):
     if request.method == "POST":
-        cal = float(request.POST.get("cal", ""))
-        cal_obj = Calorie.objects.create(calorie_burnt=cal, user=request.user)
-        cal_obj.save()
-        messages.success(request, "Your calories for today has been recorded!")
-        return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+        weight = float(request.POST.get("weight"))
+        height = float(request.POST.get("height"))
+        bmi = (weight/(height**2))*10000
+        if bmi < 18.5:
+            text = "warning"
+            remarks = "Underweight"
+        if 18.5 < bmi < 25:
+            text = "success"
+            remarks = "Healthy"
+        if 25 < bmi < 30:
+            text = "warning"
+            remarks = "Overweight"
+        if bmi >= 30:
+            text = "danger"
+            remarks = "Obese"
+        return render(request, "healthapp/bmi.html", {'bmi': bmi, 'text': text, 'remarks': remarks})
+    return render(request, "healthapp/bmi.html")
+
+
+def tracker(request):
+    if request.user.is_authenticated:
+        done = True
+        user_prev_cal = Calorie.objects.filter(user=request.user).order_by("-date")
+        if user_prev_cal:
+            prev_date = user_prev_cal[0].date
+            date_today = datetime.datetime.now().date()
+            if date_today > prev_date:
+                done = False
+        else:
+            done = False
+        if request.method == "POST":
+            cal = float(request.POST.get("cal", "0.00"))
+            if not cal:
+                exercise_params = {
+                    "query": request.POST.get("calnlp",""),
+                    "gender": "male",
+                    "weight_kg":float(request.POST.get("weight","")),
+                    "height_cm":float(request.POST.get("height","")) ,
+                    "age": int(request.POST.get("age",""))
+                }
+                query=requests.post(url=nutri_api_endpoint, json=exercise_params, headers=headers)
+                data =query.json()
+                total_cal_burnt = 0
+                total_mins_spent = 0
+                exercises = []
+                for n in range(0, len(data['exercises'])):
+                    exercise = [data['exercises'][n]['name'].title(), data['exercises'][n]['nf_calories'],
+                                data['exercises'][n]['duration_min']]
+                    exercises.append(exercise)
+                    total_cal_burnt = total_cal_burnt + data['exercises'][n]['nf_calories']
+                    total_mins_spent = total_mins_spent + data['exercises'][n]['duration_min']
+                cal_obj = Calorie.objects.create(calorie_burnt=total_cal_burnt, user=request.user)
+                cal_obj.save()
+                done=True
+                messages.info(request,f"You've burnt {total_cal_burnt} calories and spent {total_mins_spent} minutes!")
+                return render(request, 'healthapp/tracker.html', {'done': "true"})
+            if not done:
+                cal_obj = Calorie.objects.create(calorie_burnt=cal, user=request.user)
+                cal_obj.save()
+                messages.success(request, "Your calories for today has been recorded!")
+                return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+        if done:
+            return render(request, 'healthapp/tracker.html', {'done': "true"})
+    else:
+        return redirect("/")
     return render(request, 'healthapp/tracker.html')
+
 
 
 def get_exercises(request, type):
