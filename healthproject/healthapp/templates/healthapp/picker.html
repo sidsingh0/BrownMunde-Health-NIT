@@ -7,7 +7,8 @@
   {% load static %}
   <div class="container">
     <h1>Wanna train <span id="muscle">your body</span>?</h1>
-    <img src="{% static 'healthapp/images/bgm.png' %}" width="297" height="597" alt="anImage" usemap="#brownmunde">
+    <p class="text-muted">Tip: Click the body part you want to train from the figure below!</p>
+    <img src="https://raw.githubusercontent.com/sidsingh0/BrownMunde-Health-NIT/master/healthproject/healthapp/static/healthapp/images/bgm.png" width="297" height="597" alt="anImage" usemap="#brownmunde">
 
     <map name="brownmunde">
       <area shape="rect" coords="11,109,85,335" href="{% url 'health-exercises' 'arm' %}" alt="arms" onmousemove="fun('Arms')">

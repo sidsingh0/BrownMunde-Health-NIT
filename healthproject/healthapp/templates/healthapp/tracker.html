@@ -20,7 +20,9 @@ graph view in your <a class="text-secondary" href="{% url 'health-dashboard' %}"
   </div>
   <button id="submitnow" type="submit" class="btn btn-secondary">Submit</button>
 </form>
+  {% if done == "true" %}
   <p class="text-muted">Your calories for today has already been recorded! Come back tomorrow!</p>
+  {% endif %}
   <hr>
   <h2>Don't know how many calories you've burnt?</h2>
   <small class="text-muted">Try our new humane way of calculating calories.</small>
@@ -53,7 +55,7 @@ graph view in your <a class="text-secondary" href="{% url 'health-dashboard' %}"
     <label for="age" class="form-label">Tell Us Your Age</label>
     <input placeholder="eg: 18" type="number" class="form-control" id="age" name="age" required>
       <div class="invalid-feedback">
-        Height cannot be empty!
+        Age cannot be empty!
       </div>
   </div>
 
@@ -72,4 +74,3 @@ graph view in your <a class="text-secondary" href="{% url 'health-dashboard' %}"
   {% endif %}
 </script>
 {% endblock %}
-

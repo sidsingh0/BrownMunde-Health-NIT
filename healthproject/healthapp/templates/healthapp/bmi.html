@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+
+{% block title %}Check your BMI! {% endblock %}
+{% block bmiactive %} active {% endblock %}
+{% block body %}
+<div class="container my-5">
+<h2>Enter the details!</h2>
+<hr>
+<form class="needs-validation" method="post" action="." novalidate>
+      {% csrf_token %}
+  <div class="mb-3 col-md-4 col-lg-4">
+    <label for="weight" class="form-label">Tell Us Your Weight</label>
+    <input placeholder="eg: 65.20" type="number" step="any" class="form-control" id="weight" name="weight" required>
+      <div class="invalid-feedback">
+        Weight cannot be empty!
+      </div>
+  </div>
+      <div class="mb-3 col-md-4 col-lg-4">
+    <label for="height" class="form-label">Tell Us Your Height <span class="text-muted">(in cms)</span></label>
+    <input placeholder="eg: 120.67" type="number" step="any" class="form-control" id="height" name="height" required>
+      <div class="invalid-feedback">
+        Height cannot be empty!
+      </div>
+  </div>
+  <button id="submitnow" type="submit" class="btn btn-secondary">Submit</button>
+</form>
+  <hr>
+  {% if bmi %}
+  <h2>Results:</h2>
+  <p>Your BMI is: <span class="text-{{ text }}">{{ bmi }}</span></p>
+  <p class="text-muted">This indicates you are <span class="text-decoration-underline text-{{ text }}">{{ remarks }}.</span> You can try out exercises from our <a class="text-secondary" href="{% url 'health-picker' %}">picker</a>!!</p>
+  {% endif %}
+  </div>
+{% endblock %}
