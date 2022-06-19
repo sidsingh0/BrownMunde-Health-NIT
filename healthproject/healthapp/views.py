@@ -10,6 +10,7 @@ import plotly
 import json
 import plotly.express as px
 import requests
+from django.contrib.auth.decorators import login_required
 
 STOCK_ENDPOINT = "https://www.alphavantage.co/query"
 NEWS_ENDPOINT = "https://newsapi.org/v2/everything"
@@ -81,6 +82,7 @@ def handleLogin(request):
         return HttpResponseNotFound("<h1>404 - Forbidden</h1>The requested URL is not allowed!")
 
 
+@login_required(login_url="/")
 def handleLogout(request):
     if request.method == "POST":
         logout(request)
@@ -88,6 +90,7 @@ def handleLogout(request):
         return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
 
+@login_required(login_url="/")
 def dashboard(request):
     if request.user.is_authenticated:
         cal_objs = Calorie.objects.filter(user=request.user).values('date', 'calorie_burnt')
@@ -112,12 +115,13 @@ def appointment(request):
         appointment = Appointment.objects.create(user=request.user, full_name=full_name, email=email, phone=phone,
                                                  desc=desc, address=address, pincode=pincode)
         appointment.save()
-        messages.success(request, "Your appointment has been booked successfully!")
+        messages.success(request, "Your appointment has been booked successfully! You can view them below your profile as My Appointments!")
         return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
     else:
         return render(request, 'healthapp/appointment.html')
 
 
+@login_required(login_url="/")
 def get_appointments(request):
     if request.user.is_authenticated:
         my_appointments = Appointment.objects.filter(user=request.user)
@@ -150,6 +154,7 @@ def bmi(request):
     return render(request, "healthapp/bmi.html")
 
 
+@login_required(login_url="/")
 def tracker(request):
     if request.user.is_authenticated:
         done = True
@@ -165,14 +170,14 @@ def tracker(request):
             cal = float(request.POST.get("cal", "0.00"))
             if not cal:
                 exercise_params = {
-                    "query": request.POST.get("calnlp",""),
+                    "query": request.POST.get("calnlp", ""),
                     "gender": "male",
-                    "weight_kg":float(request.POST.get("weight","")),
-                    "height_cm":float(request.POST.get("height","")) ,
-                    "age": int(request.POST.get("age",""))
+                    "weight_kg": float(request.POST.get("weight", "0.00")),
+                    "height_cm": float(request.POST.get("height", "0.00")),
+                    "age": int(request.POST.get("age", "0"))
                 }
-                query=requests.post(url=nutri_api_endpoint, json=exercise_params, headers=headers)
-                data =query.json()
+                query = requests.post(url=nutri_api_endpoint, json=exercise_params, headers=headers)
+                data = query.json()
                 total_cal_burnt = 0
                 total_mins_spent = 0
                 exercises = []
@@ -185,7 +190,7 @@ def tracker(request):
                 cal_obj = Calorie.objects.create(calorie_burnt=total_cal_burnt, user=request.user)
                 cal_obj.save()
                 done=True
-                messages.info(request,f"You've burnt {total_cal_burnt} calories and spent {total_mins_spent} minutes!")
+                messages.info(request, f"You've burnt {total_cal_burnt} calories and spent {total_mins_spent} minutes!")
                 return render(request, 'healthapp/tracker.html', {'done': "true"})
             if not done:
                 cal_obj = Calorie.objects.create(calorie_burnt=cal, user=request.user)
@@ -197,7 +202,6 @@ def tracker(request):
     else:
         return redirect("/")
     return render(request, 'healthapp/tracker.html')
-
 
 
 def get_exercises(request, type):

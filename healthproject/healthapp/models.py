@@ -15,18 +15,6 @@ class User(AbstractUser):
     pass
 
 
-class UserInfo(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="profile")
-    first_name = models.CharField(max_length=100, blank=True)
-    last_name = models.CharField(max_length=100, blank=True)
-    weight = models.FloatField(default=0.0)
-    height = models.FloatField(default=0.0)
-    age = models.IntegerField(default=0)
-
-    def __str__(self):
-        return self.first_name
-
-
 class Exercise(models.Model):
     name = models.CharField(max_length=100)
     type = models.CharField(max_length=100, choices=TYPE_CHOICES, default='Full-Body')
