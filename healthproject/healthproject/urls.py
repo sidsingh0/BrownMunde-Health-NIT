@@ -25,8 +25,9 @@ admin.site.index_title = "Welcome to DigiAID Admin Panel"
 
 urlpatterns = [
     path('health-admin/', admin.site.urls),
-    path('', include('healthapp.urls')),
     path('CRUD/', include('Products.urls'))
+    path('', include('healthapp.urls')),
+    
 ]
 
 if settings.DEBUG:
